@@ -32,7 +32,7 @@ Future Enhancements
 🚀 Quick Start
 bash
 # 1. Clone & Install
-git clone https://github.com/PraveenaS12/futureme-ai.git
+git clone https://github.com/PraveenaS12/FutureMe-ai.git
 cd futureme-ai
 pip install -r requirements.txt
 
@@ -50,7 +50,7 @@ Prerequisites: Python 3.8+
 Clone repo:
 
 bash
-git clone https://github.com/PraveenaS12/futureme-ai.git
+git clone https://github.com/PraveenaS12/FutureMe-ai.git
 cd futureme-ai
 Virtual Environment:
 
