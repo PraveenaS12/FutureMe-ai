@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FutureMe AI — Simulate Your Future</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — Holographic Neo-Brutalist
+════════════════════════════════════════════ */
+:root {
+  --ink:     #07090f;
+  --paper:   #0c0f1a;
+  --card:    #111520;
+  --border:  #1e2540;
+  --border2: #2a3260;
+  --lime:    #c6f135;
+  --cyan:    #2af4ff;
+  --pink:    #ff3b7f;
+  --amber:   #ffb830;
+  --violet:  #8b5cf6;
+  --text:    #d4ddf5;
+  --muted:   #5a6890;
+  --glow-l:  rgba(198,241,53,.18);
+  --glow-c:  rgba(42,244,255,.18);
+  --glow-p:  rgba(255,59,127,.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CURSOR ── */
+#cursor,#cursor-dot{
+  position:fixed;pointer-events:none;z-index:9999;
+  border-radius:50%;transform:translate(-50%,-50%);
+  transition:opacity .3s;
+}
+#cursor{
+  width:36px;height:36px;
+  border:1.5px solid var(--lime);
+  opacity:.6;
+  transition:width .15s,height .15s,border-color .15s;
+}
+#cursor-dot{width:5px;height:5px;background:var(--lime)}
+body:hover #cursor{opacity:.8}
+
+/* ── GRAIN ── */
+#grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  opacity:.2;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+}
+
+/* ── MESH BG ── */
+#mesh{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(42,244,255,.04) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 80%, rgba(255,59,127,.05) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 50% 50%, rgba(139,92,246,.03) 0%, transparent 60%);
+}
+
+/* ── GRID LINES ── */
+#gridlines{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(42,244,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(42,244,255,.018) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+
+/* ── LAYOUT ── */
+.page{position:relative;z-index:10;max-width:1200px;margin:0 auto;padding:0 32px 120px}
+
+/* ══════════════
+   HEADER
+══════════════ */
+header{
+  padding:52px 0 0;
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:start;
+  gap:24px;
+}
+.logo-block{}
+.eyebrow{
+  font-family:'Space Mono',monospace;
+  font-size:10px;letter-spacing:5px;
+  color:var(--lime);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:30px;height:1px;background:var(--lime)}
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,10vw,9.5rem);
+  line-height:.9;
+  letter-spacing:-1px;
+}
+.ht-line1{color:#fff;display:block}
+.ht-line2{
+  display:block;
+  background:linear-gradient(135deg,var(--cyan) 0%,var(--lime) 60%,var(--pink) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  margin-top:16px;
+  font-size:14px;font-weight:300;letter-spacing:2px;
+  color:var(--muted);
+  max-width:400px;
+  line-height:1.7;
+}
+.status-cluster{
+  display:flex;flex-direction:column;gap:10px;
+  padding-top:16px;
+}
+.status-pill{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:99px;
+  font-family:'Space Mono',monospace;
+  font-size:9px;letter-spacing:2px;color:var(--muted);
+  white-space:nowrap;
+}
+.pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--lime);
+  box-shadow:0 0 8px var(--lime);
+  flex-shrink:0;
+  animation:pulse-anim 2s ease-in-out infinite;
+}
+.pulse.p2{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.pulse.p3{background:var(--pink);box-shadow:0 0 8px var(--pink)}
+@keyframes pulse-anim{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+.divider{
+  width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),var(--cyan),var(--border2),transparent);
+  margin:32px 0;
+  opacity:.5;
+}
+
+/* ══════════════
+   MAIN GRID
+══════════════ */
+.main-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:8px;
+}
+@media(max-width:800px){.main-grid{grid-template-columns:1fr}}
+
+/* ── PANELS ── */
+.panel{
+  background:var(--card);
+  padding:36px 32px;
+  position:relative;
+  overflow:hidden;
+}
+.panel-label{
+  font-family:'Space Mono',monospace;
+  font-size:9px;letter-spacing:4px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:28px;
+  display:flex;align-items:center;gap:10px;
+}
+.panel-label span{color:var(--lime)}
+.panel-label::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* ── SLIDERS ── */
+.slider-group{margin-bottom:22px}
+.slider-header{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:4px;
+}
+.slider-name{
+  font-size:12px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text);
+  display:flex;align-items:center;gap:7px;
+}
+.slider-icon{font-size:16px}
+.slider-val{
+  font-family:'Space Mono',monospace;
+  font-size:26px;font-weight:700;
+  line-height:1;
+  min-width:40px;text-align:right;
+}
+.slider-desc{font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  display:block;width:100%;height:3px;
+  border-radius:3px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  cursor:pointer;
+  border:3px solid var(--ink);
+  transition:transform .15s,box-shadow .15s;
+}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.2)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.4)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;cursor:pointer;border:3px solid var(--ink)}
+
+.sg-sleep input{background:linear-gradient(90deg,var(--cyan) var(--p,58%),var(--border2) var(--p,58%))}
+.sg-sleep input::-webkit-slider-thumb{background:var(--cyan);box-shadow:0 0 14px rgba(42,244,255,.6)}
+.sg-sleep .slider-val{color:var(--cyan)}
+
+.sg-study input{background:linear-gradient(90deg,var(--lime) var(--p,30%),var(--border2) var(--p,30%))}
+.sg-study input::-webkit-slider-thumb{background:var(--lime);box-shadow:0 0 14px rgba(198,241,53,.6)}
+.sg-study .slider-val{color:var(--lime)}
+
+.sg-screen input{background:linear-gradient(90deg,var(--amber) var(--p,36%),var(--border2) var(--p,36%))}
+.sg-screen input::-webkit-slider-thumb{background:var(--amber);box-shadow:0 0 14px rgba(255,184,48,.6)}
+.sg-screen .slider-val{color:var(--amber)}
+
+.sg-exercise input{background:linear-gradient(90deg,#00ff88 var(--p,20%),var(--border2) var(--p,20%))}
+.sg-exercise input::-webkit-slider-thumb{background:#00ff88;box-shadow:0 0 14px rgba(0,255,136,.6)}
+.sg-exercise .slider-val{color:#00ff88}
+
+.sg-stress input{background:linear-gradient(90deg,var(--pink) var(--p,33%),var(--border2) var(--p,33%))}
+.sg-stress input::-webkit-slider-thumb{background:var(--pink);box-shadow:0 0 14px rgba(255,59,127,.6)}
+.sg-stress .slider-val{color:var(--pink)}
+
+/* ── YEAR SELECT ── */
+.year-row{
+  display:flex;gap:8px;flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.year-btn{
+  flex:1;min-width:40px;
+  padding:9px 4px;
+  font-family:'Space Mono',monospace;font-size:12px;font-weight:700;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .2s;
+  text-align:center;
+}
+.year-btn:hover{border-color:var(--lime);color:var(--lime)}
+.year-btn.active{
+  background:var(--lime);
+  border-color:var(--lime);
+  color:var(--ink);
+  box-shadow:0 0 20px rgba(198,241,53,.3);
+}
+
+/* ── RUN BUTTON ── */
+.run-btn{
+  display:block;width:100%;
+  padding:18px 24px;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;
+  color:var(--ink);
+  background:var(--lime);
+  border:none;border-radius:10px;cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+  margin-top:8px;
+}
+.run-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.3),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.run-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 40px rgba(198,241,53,.4);
+}
+.run-btn:hover::before{opacity:1}
+.run-btn:active{transform:translateY(0)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-inner{display:flex;align-items:center;justify-content:center;gap:12px}
+.btn-arrow{transition:transform .2s}
+.run-btn:hover .btn-arrow{transform:translateX(4px)}
+
+/* ══════════════
+   RESULTS
+══════════════ */
+.results-panel{position:relative}
+
+.idle-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;min-height:420px;
+  text-align:center;
+  padding:40px;
+}
+.idle-orb{
+  width:120px;height:120px;border-radius:50%;
+  background:var(--border);
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;
+  margin-bottom:24px;
+  position:relative;
+}
+.idle-orb::after{
+  content:'';position:absolute;inset:-12px;border-radius:50%;
+  border:1px solid var(--border2);opacity:.4;
+  animation:orb-ring 3s ease-in-out infinite;
+}
+@keyframes orb-ring{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.1);opacity:.15}}
+.idle-title{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--muted);letter-spacing:2px;
+  margin-bottom:8px;
+}
+.idle-sub{font-size:12px;color:var(--muted);letter-spacing:1px;opacity:.6}
+
+.metrics-grid{display:flex;flex-direction:column;gap:16px}
+
+.metric-card{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px 20px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s;
+}
+.metric-card::before{
+  content:'';position:absolute;inset:0;
+  opacity:0;transition:opacity .4s;
+}
+.metric-card.mc-focus::before{background:radial-gradient(ellipse at top left,var(--glow-c),transparent 60%)}
+.metric-card.mc-energy::before{background:radial-gradient(ellipse at top left,rgba(139,92,246,.12),transparent 60%)}
+.metric-card.mc-prod::before{background:radial-gradient(ellipse at top left,var(--glow-l),transparent 60%)}
+.metric-card.mc-burn::before{background:radial-gradient(ellipse at top left,var(--glow-p),transparent 60%)}
+.metric-card.active::before{opacity:1}
+
+.metric-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:12px}
+.metric-label-row{display:flex;align-items:center;gap:8px}
+.metric-icon{font-size:18px}
+.metric-name{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;
+}
+.metric-val{
+  font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;
+}
+.metric-val .unit{font-size:18px;opacity:.5}
+.track{height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.track-fill{height:100%;border-radius:4px;width:0%;transition:width 1.2s cubic-bezier(.34,1.3,.64,1)}
+
+.mc-focus .metric-name{color:var(--cyan)}
+.mc-focus .metric-val{color:var(--cyan)}
+.mc-focus .track-fill{background:linear-gradient(90deg,rgba(42,244,255,.3),var(--cyan))}
+.mc-focus{border-color:rgba(42,244,255,.15)}
+
+.mc-energy .metric-name{color:var(--violet)}
+.mc-energy .metric-val{color:var(--violet)}
+.mc-energy .track-fill{background:linear-gradient(90deg,rgba(139,92,246,.3),var(--violet))}
+.mc-energy{border-color:rgba(139,92,246,.15)}
+
+.mc-prod .metric-name{color:var(--lime)}
+.mc-prod .metric-val{color:var(--lime)}
+.mc-prod .track-fill{background:linear-gradient(90deg,rgba(198,241,53,.3),var(--lime))}
+.mc-prod{border-color:rgba(198,241,53,.15)}
+
+.mc-burn .metric-name{color:var(--pink)}
+.mc-burn .metric-val{color:var(--pink)}
+.mc-burn .track-fill{background:linear-gradient(90deg,rgba(255,59,127,.3),var(--pink))}
+.mc-burn{border-color:rgba(255,59,127,.15)}
+
+.advice-strip{
+  margin-top:18px;
+  padding:16px 20px;
+  background:rgba(198,241,53,.05);
+  border:1px solid rgba(198,241,53,.2);
+  border-radius:10px;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.6;
+  color:var(--lime);
+  display:none;
+}
+.advice-strip.visible{display:block}
+
+.chart-section{
+  margin-top:18px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  display:none;
+}
+.chart-section.visible{display:block}
+.chart-title{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;margin-bottom:14px;
+}
+.chart-legend{
+  display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;
+}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* ══════════════
+   BOTTOM ROW
+══════════════ */
+.bottom-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:2px;
+}
+@media(max-width:800px){.bottom-row{grid-template-columns:1fr}}
+.bottom-panel{background:var(--card);padding:32px}
+
+/* ══════════════
+   CHATBOT
+══════════════ */
+.chat-wrap{display:flex;flex-direction:column;height:100%;min-height:300px}
+.chat-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+.chat-avatar{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(42,244,255,.15),rgba(198,241,53,.1));
+  border:1px solid rgba(42,244,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.chat-name{font-weight:700;font-size:14px;letter-spacing:.5px}
+.chat-status{font-size:11px;color:var(--lime);display:flex;align-items:center;gap:5px}
+.odot{width:5px;height:5px;border-radius:50%;background:var(--lime);animation:pulse-anim 2s infinite}
+
+.chat-msgs{
+  flex:1;overflow-y:auto;
+  display:flex;flex-direction:column;gap:8px;
+  margin-bottom:14px;
+  max-height:220px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  padding-right:4px;
+}
+.chat-msgs::-webkit-scrollbar{width:2px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border2)}
+
+.msg{animation:msg-in .25s ease both}
+@keyframes msg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-inner{
+  max-width:85%;padding:10px 14px;
+  font-size:13px;line-height:1.55;font-weight:400;
+  border-radius:12px;
+}
+.msg.user{display:flex;justify-content:flex-end}
+.msg.user .msg-inner{
+  background:rgba(198,241,53,.08);
+  border:1px solid rgba(198,241,53,.2);
+  border-radius:12px 12px 3px 12px;
+  color:var(--text);
+}
+.msg.aria .msg-inner{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:12px 12px 12px 3px;
+}
+.typing-dots{display:flex;gap:4px;padding:4px 2px}
+.typing-dots span{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);
+  animation:td .6s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:.12s}
+.typing-dots span:nth-child(3){animation-delay:.24s}
+@keyframes td{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+
+.chat-suggestions{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;
+}
+.sug-chip{
+  padding:5px 11px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border2);
+  border-radius:99px;
+  font-size:11px;font-weight:600;color:var(--muted);
+  cursor:pointer;letter-spacing:.5px;
+  transition:all .15s;
+}
+.sug-chip:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(42,244,255,.06)}
+
+.chat-input-row{display:flex;gap:8px;align-items:center}
+.chat-input{
+  flex:1;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:10px 14px;
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.chat-input:focus{border-color:rgba(42,244,255,.4)}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send{
+  width:38px;height:38px;border-radius:10px;flex-shrink:0;
+  background:var(--cyan);
+  border:none;cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,box-shadow .15s;
+  color:var(--ink);font-weight:700;
+}
+.chat-send:hover{transform:scale(1.08);box-shadow:0 0 20px rgba(42,244,255,.4)}
+
+/* ══════════════
+   TIPS PANEL
+══════════════ */
+.tip-grid{display:flex;flex-direction:column;gap:10px;margin-top:0}
+.tip-card{
+  padding:14px 16px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:10px;
+  display:flex;gap:12px;align-items:start;
+  transition:border-color .2s,background .2s;
+}
+.tip-card:hover{border-color:var(--border2);background:rgba(255,255,255,.035)}
+.tip-ico{font-size:22px;flex-shrink:0;margin-top:1px}
+.tip-text{font-size:12px;line-height:1.6;color:var(--text);opacity:.85}
+.tip-text strong{color:var(--lime);opacity:1}
+
+/* ══════════════
+   TOAST
+══════════════ */
+#toast{
+  position:fixed;top:28px;right:28px;
+  background:var(--card);
+  border:1px solid var(--lime);
+  border-radius:10px;
+  padding:12px 20px;
+  font-family:'Space Mono',monospace;
+  font-size:10px;letter-spacing:2px;
+  color:var(--lime);
+  box-shadow:0 0 30px rgba(198,241,53,.2);
+  transform:translateX(calc(100% + 40px));
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;
+  pointer-events:none;
+}
+#toast.show{transform:translateX(0)}
+
+/* ══════════════
+   FOOTER
+══════════════ */
+footer{
+  text-align:center;
+  padding:40px 0 20px;
+  font-family:'Space Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--muted);text-transform:uppercase;
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer-logo{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;
+  background:linear-gradient(90deg,var(--cyan),var(--lime));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:8px;
+}
+
+@keyframes fsu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.panel,.bottom-panel{animation:fsu .5s ease both}
+.panel.results-panel{animation-delay:.1s}
+.bottom-panel:last-child{animation-delay:.2s}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- BG layers -->
+<div id="grain"></div>
+<div id="mesh"></div>
+<div id="gridlines"></div>
+
+<!-- Toast -->
+<div id="toast">⟶ SIMULATION COMPLETE</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="eyebrow">◈ Lifestyle Simulation System v3.0</div>
+      <h1 class="hero-title">
+        <span class="ht-line1">FUTURE</span>
+        <span class="ht-line2">ME AI</span>
+      </h1>
+      <p class="hero-sub">Predict where your habits lead.<br>Simulate your next 1–5 years in seconds.</p>
+    </div>
+    <div class="status-cluster">
+      <div class="status-pill"><div class="pulse"></div>AI MODEL ONLINE</div>
+      <div class="status-pill"><div class="pulse p2"></div>FLASK API READY</div>
+      <div class="status-pill"><div class="pulse p3"></div>ARIA ACTIVE</div>
+    </div>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: INPUTS -->
+    <div class="panel">
+      <div class="panel-label">◈ <span>01</span> Lifestyle Inputs</div>
+
+      <div class="slider-group sg-sleep">
+        <div class="slider-header">
+          <div class="slider-name"><span class="slider-icon">😴</span> Sleep</div>
+          <div class="slider-val" id="vs">7</div>
+        </div>
+        <div class="slider-desc">Hours per night · 1–12</div>
+        <input type="range" id="rs" min="1" max="12" value="7"/>
+      </div>
+
+      <div class="slider-group sg-study">
+        <div class="slider-header">
+          <div class="slider-name"><span class="slider-icon">📚</span> Study</div>
+          <div class="slider-val" id="vst">3</div>
+        </div>
+        <div class="slider-desc">Hours per day · 0–10</div>
+        <input type="range" id="rst" min="0" max="10" value="3"/>
+      </div>
+
+      <div class="slider-group sg-screen">
+        <div class="slider-header">
+          <div class="slider-name"><span class="slider-icon">📱</span> Screen Time</div>
+          <div class="slider-val" id="vsc">5</div>
+        </div>
+        <div class="slider-desc">Hours screen time · 0–14</div>
+        <input type="range" id="rsc" min="0" max="14" value="5"/>
+      </div>
+
+      <div class="slider-group sg-exercise">
+        <div class="slider-header">
+          <div class="slider-name"><span class="slider-icon">🏃</span> Exercise</div>
+          <div class="slider-val" id="vex">1</div>
+        </div>
+        <div class="slider-desc">Hours per day · 0–5</div>
+        <input type="range" id="rex" min="0" max="5" value="1"/>
+      </div>
+
+      <div class="slider-group sg-stress">
+        <div class="slider-header">
+          <div class="slider-name"><span class="slider-icon">😵</span> Stress</div>
+          <div class="slider-val" id="vsr">4</div>
+        </div>
+        <div class="slider-desc">Stress level · 1–10</div>
+        <input type="range" id="rsr" min="1" max="10" value="4"/>
+      </div>
+
+      <div class="panel-label" style="margin-top:8px;margin-bottom:12px">◈ <span>02</span> Simulate Years Ahead</div>
+      <div class="year-row">
+        <button class="year-btn active" data-year="1">1Y</button>
+        <button class="year-btn" data-year="2">2Y</button>
+        <button class="year-btn" data-year="3">3Y</button>
+        <button class="year-btn" data-year="4">4Y</button>
+        <button class="year-btn" data-year="5">5Y</button>
+      </div>
+
+      <button class="run-btn" id="runBtn" onclick="runSimulation()">
+        <div class="btn-inner">
+          <span>Run AI Simulation</span>
+          <span class="btn-arrow">→</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div class="panel results-panel">
+      <div class="panel-label">◈ <span>03</span> AI Predictions</div>
+
+      <div id="idle-state" class="idle-state">
+        <div class="idle-orb">🤖</div>
+        <div class="idle-title">AWAITING DATA</div>
+        <div class="idle-sub">Adjust sliders and run simulation</div>
+      </div>
+
+      <div id="results-content" style="display:none">
+        <div class="metrics-grid">
+          <div class="metric-card mc-focus" id="mc-focus">
+            <div class="metric-top">
+              <div class="metric-label-row">
+                <span class="metric-icon">🧠</span>
+                <span class="metric-name">Focus Score</span>
+              </div>
+              <div class="metric-val" id="mv-focus">0<span class="unit">%</span></div>
+            </div>
+            <div class="track"><div class="track-fill" id="tf-focus"></div></div>
+          </div>
+
+          <div class="metric-card mc-energy" id="mc-energy">
+            <div class="metric-top">
+              <div class="metric-label-row">
+                <span class="metric-icon">⚡</span>
+                <span class="metric-name">Energy Level</span>
+              </div>
+              <div class="metric-val" id="mv-energy">0<span class="unit">%</span></div>
+            </div>
+            <div class="track"><div class="track-fill" id="tf-energy"></div></div>
+          </div>
+
+          <div class="metric-card mc-prod" id="mc-prod">
+            <div class="metric-top">
+              <div class="metric-label-row">
+                <span class="metric-icon">📈</span>
+                <span class="metric-name">Productivity</span>
+              </div>
+              <div class="metric-val" id="mv-prod">0<span class="unit">%</span></div>
+            </div>
+            <div class="track"><div class="track-fill" id="tf-prod"></div></div>
+          </div>
+
+          <div class="metric-card mc-burn" id="mc-burn">
+            <div class="metric-top">
+              <div class="metric-label-row">
+                <span class="metric-icon">🔥</span>
+                <span class="metric-name">Burnout Risk</span>
+              </div>
+              <div class="metric-val" id="mv-burn">0<span class="unit">%</span></div>
+            </div>
+            <div class="track"><div class="track-fill" id="tf-burn"></div></div>
+          </div>
+        </div>
+
+        <div class="advice-strip" id="advice-strip"></div>
+
+        <div class="chart-section" id="chart-section">
+          <div class="chart-title">Growth Projection</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Focus</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--lime)"></div>Productivity</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pink)"></div>Burnout</div>
+          </div>
+          <canvas id="miniChart" style="width:100%;height:130px;display:block"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bottom-row">
+
+    <div class="bottom-panel">
+      <div class="panel-label">◈ <span>04</span> Chat with Aria</div>
+      <div class="chat-wrap">
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-name">Aria AI</div>
+            <div class="chat-status"><span class="odot"></span>Online · Lifestyle Coach</div>
+          </div>
+        </div>
+
+        <div class="chat-msgs" id="chatMsgs"></div>
+
+        <div class="chat-suggestions" id="chatSugs">
+          <button class="sug-chip" onclick="sendSug(this)">Improve focus</button>
+          <button class="sug-chip" onclick="sendSug(this)">Beat burnout</button>
+          <button class="sug-chip" onclick="sendSug(this)">Sleep tips</button>
+          <button class="sug-chip" onclick="sendSug(this)">Analyse my stats</button>
+        </div>
+
+        <div class="chat-input-row">
+          <input class="chat-input" id="chatInput" placeholder="Ask Aria anything…" maxlength="300"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();sendMsg()}"/>
+          <button class="chat-send" onclick="sendMsg()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-panel">
+      <div class="panel-label">◈ <span>05</span> Optimization Tips</div>
+      <div class="tip-grid" id="tipGrid">
+        <div class="tip-card"><div class="tip-ico">😴</div><div class="tip-text"><strong>Sleep 7–9 hours</strong> — Even one extra hour can boost focus by up to 30% and dramatically reduce burnout risk.</div></div>
+        <div class="tip-card"><div class="tip-ico">🏃</div><div class="tip-text"><strong>Exercise 30 min/day</strong> — Physical movement releases endorphins that raise energy levels by 20–40%.</div></div>
+        <div class="tip-card"><div class="tip-ico">📱</div><div class="tip-text"><strong>Limit screen time</strong> — Reducing screen time below 4h/day is linked to 25% better sleep quality.</div></div>
+        <div class="tip-card"><div class="tip-ico">🧘</div><div class="tip-text"><strong>Manage stress</strong> — Box breathing (4s in, 4s hold, 4s out) lowers cortisol within minutes.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-logo">FutureMe AI</div>
+    <div>RandomForest ML · Flask API · Aria AI v3.0 · Built for the future</div>
+  </footer>
+
+</div>
+
+<script>
+/* ── CURSOR ── */
+const cur=document.getElementById('cursor'),dot=document.getElementById('cursor-dot');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
+(function animCursor(){cx+=(mx-cx)*.14;cy+=(my-cy)*.14;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(animCursor)})();
+document.querySelectorAll('button,input,.sug-chip,.year-btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='50px';cur.style.height='50px';cur.style.borderColor='var(--lime)'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='36px';cur.style.height='36px';cur.style.borderColor='var(--lime)'});
+});
+
+/* ── SLIDERS ── */
+const SLIDERS=[
+  {id:'rs',vid:'vs',min:1,max:12},
+  {id:'rst',vid:'vst',min:0,max:10},
+  {id:'rsc',vid:'vsc',min:0,max:14},
+  {id:'rex',vid:'vex',min:0,max:5},
+  {id:'rsr',vid:'vsr',min:1,max:10},
+];
+SLIDERS.forEach(({id,vid,min,max})=>{
+  const el=document.getElementById(id),vl=document.getElementById(vid);
+  const sync=()=>{vl.textContent=el.value;el.style.setProperty('--p',((el.value-min)/(max-min)*100).toFixed(1)+'%')};
+  el.addEventListener('input',sync);sync();
+});
+
+/* ── YEAR BUTTONS ── */
+let selectedYear=1;
+document.querySelectorAll('.year-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');selectedYear=+btn.dataset.year;
+  });
+});
+
+/* ── GET VALUES ── */
+function getVals(){
+  return{
+    sleep:+document.getElementById('rs').value,
+    study:+document.getElementById('rst').value,
+    screen:+document.getElementById('rsc').value,
+    exercise:+document.getElementById('rex').value,
+    stress:+document.getElementById('rsr').value,
+    futureYear:selectedYear
+  };
+}
+
+/* ── LOCAL SIMULATION ── */
+function localSim({sleep:s,study:st,screen:sc,exercise:ex,stress:sr,futureYear:fy}){
+  const cl=(v,a,b)=>Math.min(b,Math.max(a,v)),rd=x=>(Math.random()-.5)*x;
+  const sn=(s-1)/11,stn=st/10,scn=1-sc/14*.75,exn=ex/5,srn=1-(sr-1)/9*.85;
+  let focus=cl(Math.round((sn*35+stn*25+scn*20+srn*20)*.9+rd(4)),18,95);
+  let energy=cl(Math.round((sn*40+exn*30+srn*20+scn*10)*.9+rd(4)),12,95);
+  let productivity=cl(Math.round((sn*35+stn*30+scn*15+srn*20)*.9+rd(4)),18,95);
+  let burnout=cl(Math.round((1-srn)*40+(1-sn)*25+(1-exn)*15+(scn<.4?18:4)+rd(6)),5,92);
+  const gf=1+(fy*.15),br=Math.max(.1,1-(fy*.05));
+  focus=cl(Math.round(focus*gf),0,100);
+  energy=cl(Math.round(energy*gf),0,100);
+  productivity=cl(Math.round(productivity*gf),0,100);
+  burnout=cl(Math.round(burnout*br),0,100);
+  let advice;
+  if(productivity<50)advice=`⚠ In ${fy} year(s), productivity may drop. Increase focused study time.`;
+  else if(burnout>70)advice=`⚠ Burnout risk in ${fy} year(s)! Improve sleep & reduce screen time.`;
+  else if(energy<40)advice=`⚡ Energy may decline in ${fy} year(s). Add more daily exercise.`;
+  else advice=`🔥 In ${fy} year(s), you're on a powerful growth trajectory!`;
+  const years=Array.from({length:Math.max(5,fy)},(_,i)=>i+1);
+  const base={focus:focus/(1+fy*.15)||focus,productivity:productivity/(1+fy*.15)||productivity,burnout:burnout/br};
+  return{focus,energy,productivity,burnout,advice,chartData:{
+    years,
+    focusTrend:years.map(y=>Math.min(100,base.focus*(1+y*.15))),
+    prodTrend:years.map(y=>Math.min(100,base.productivity*(1+y*.15))),
+    burnTrend:years.map(y=>Math.max(0,base.burnout*(Math.max(.1,1-y*.05))))
+  }};
+}
+
+/* ── SIMULATION ── */
+let lastResult=null;
+async function runSimulation(){
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true;
+  btn.querySelector('.btn-inner').innerHTML='<span>Simulating…</span><span style="display:inline-block;animation:spin .8s linear infinite">↻</span>';
+  const vals=getVals();
+  let result;
+  try{
+    const res=await fetch('http://127.0.0.1:5000/predict',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(vals),signal:AbortSignal.timeout(1500)
+    });
+    if(!res.ok)throw 0;
+    const data=await res.json();
+    if(typeof data.focus==='undefined')throw 0;
+    const years=Array.from({length:Math.max(5,vals.futureYear)},(_,i)=>i+1);
+    result={focus:data.focus,energy:data.energy,productivity:data.productivity,burnout:data.burnout,advice:data.advice||'',
+      chartData:{years,
+        focusTrend:years.map(y=>Math.min(100,data.focus*(1+y*.15))),
+        prodTrend:years.map(y=>Math.min(100,data.productivity*(1+y*.15))),
+        burnTrend:years.map(y=>Math.max(0,data.burnout*(1-y*.05)))}};
+  }catch{result=localSim(vals)}
+  await new Promise(r=>setTimeout(r,300));
+  lastResult=result;
+  renderResults(result);
+  updateTips();
+  showToast();
+  btn.disabled=false;
+  btn.querySelector('.btn-inner').innerHTML='<span>Run AI Simulation</span><span class="btn-arrow">→</span>';
+}
+
+/* ── RENDER ── */
+function renderResults({focus,energy,productivity,burnout,advice,chartData}){
+  document.getElementById('idle-state').style.display='none';
+  document.getElementById('results-content').style.display='block';
+  [{id:'focus',val:focus},{id:'energy',val:energy},{id:'prod',val:productivity},{id:'burn',val:burnout}].forEach(({id,val})=>{
+    countUp(document.getElementById('mv-'+id),Math.round(val));
+    setTimeout(()=>{document.getElementById('tf-'+id).style.width=Math.round(val)+'%'},100);
+    document.getElementById('mc-'+id).classList.add('active');
+  });
+  const adv=document.getElementById('advice-strip');
+  adv.textContent=advice;adv.classList.add('visible');
+  renderChart(chartData);
+  document.getElementById('chart-section').classList.add('visible');
+}
+
+function countUp(el,target){
+  let v=0;const t=setInterval(()=>{
+    v=Math.min(target,v+target/38);
+    el.innerHTML=Math.round(v)+'<span class="unit">%</span>';
+    if(v>=target)clearInterval(t);
+  },20);
+}
+
+/* ── CHART ── */
+function renderChart({years,focusTrend,prodTrend,burnTrend}){
+  const canvas=document.getElementById('miniChart');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.parentElement.offsetWidth||400;
+  const H=130;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const pad={l:28,r:12,t:10,b:22};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+  function toX(i){return pad.l+(i/(years.length-1||1))*cw}
+  function toY(v){return pad.t+ch-(v/100)*ch}
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;ctx.setLineDash([]);
+  [0,50,100].forEach(v=>{
+    const y=toY(v);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.18)';ctx.font=`8px monospace`;ctx.fillText(v+'%',2,y+3);
+  });
+  // X labels
+  ctx.fillStyle='rgba(255,255,255,.2)';ctx.font='8px monospace';
+  years.forEach((y,i)=>{if(years.length<=6||i%2===0||i===years.length-1)ctx.fillText('Y'+y,toX(i)-7,H-4)});
+  // Lines
+  function drawLine(data,color,dashed=false){
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.setLineDash(dashed?[5,5]:[]);
+    data.forEach((v,i)=>{if(i===0)ctx.moveTo(toX(i),toY(v));else ctx.lineTo(toX(i),toY(v))});
+    ctx.stroke();
+    const lx=toX(data.length-1),ly=toY(data[data.length-1]);
+    ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+  }
+  drawLine(focusTrend,'#2af4ff');
+  drawLine(prodTrend,'#c6f135');
+  drawLine(burnTrend,'#ff3b7f',true);
+}
+
+/* ── TOAST ── */
+function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+
+/* ── TIPS ── */
+function updateTips(){
+  if(!lastResult)return;
+  const {focus,energy,productivity,burnout}=lastResult,v=getVals();
+  const tips=[];
+  if(burnout>65)tips.push({ico:'🚨',text:`<strong>Burnout alert ${burnout}%!</strong> Your stress pattern will catch up. Prioritize sleep and reduce screen time immediately.`});
+  if(v.sleep<6)tips.push({ico:'😴',text:`<strong>Sleep is your #1 lever.</strong> You're at ${v.sleep}h — just 1-2 extra hours could add ~15 focus points.`});
+  if(v.exercise<1)tips.push({ico:'🏃',text:`<strong>Add 30 min of movement.</strong> At ${v.exercise}h/day you're leaving major energy gains on the table.`});
+  if(v.screen>8)tips.push({ico:'📱',text:`<strong>Screen time is ${v.screen}h — high.</strong> This suppresses focus and sleep quality. Target under 5h/day.`});
+  if(focus>80)tips.push({ico:'🌟',text:`<strong>Focus at ${focus}% — excellent!</strong> Maintain your sleep + study routine to sustain this trajectory.`});
+  if(productivity>75&&burnout<50)tips.push({ico:'🚀',text:`<strong>You're in the zone!</strong> Productivity ${productivity}% with manageable burnout ${burnout}% — sustainable excellence.`});
+  const defaults=[
+    {ico:'💧',text:`<strong>Hydration matters.</strong> Dehydration reduces cognitive performance by up to 10%. Aim for 2-3L daily.`},
+    {ico:'🧘',text:`<strong>Box breathing reduces stress.</strong> 4s inhale · 4s hold · 4s exhale — proven to lower cortisol fast.`},
+  ];
+  while(tips.length<4)tips.push(defaults[tips.length%2]);
+  document.getElementById('tipGrid').innerHTML=tips.slice(0,4).map(t=>`<div class="tip-card"><div class="tip-ico">${t.ico}</div><div class="tip-text">${t.text}</div></div>`).join('');
+}
+
+/* ── CHAT ── */
+let chatHistory=[],chatStarted=false;
+window.addEventListener('load',()=>setTimeout(()=>{
+  if(!chatStarted){chatStarted=true;addAriaMsg(`Hey! 👋 I'm <strong>Aria</strong>, your AI lifestyle coach. Run a simulation and I'll give you a fully personalised breakdown. What's on your mind?`)}
+},400));
+
+function sendSug(btn){
+  const t=btn.textContent;
+  document.getElementById('chatSugs').style.display='none';
+  doSendMsg(t);
+}
+function sendMsg(){const inp=document.getElementById('chatInput');const t=inp.value.trim();if(!t)return;inp.value='';doSendMsg(t)}
+
+async function doSendMsg(text){
+  addUserMsg(text);chatHistory.push({role:'user',content:text});
+  const tid=addTyping();
+  const v=getVals();
+  const ps=lastResult?`Latest simulation: Focus=${lastResult.focus}%, Energy=${lastResult.energy}%, Productivity=${lastResult.productivity}%, Burnout=${lastResult.burnout}%.`:'No simulation run yet.';
+  const vs=`Inputs: Sleep=${v.sleep}h, Study=${v.study}h, Screen=${v.screen}h, Exercise=${v.exercise}h, Stress=${v.stress}/10.`;
+  const sys=`You are Aria, a warm, motivating AI lifestyle coach for FutureMe AI. Be concise (2-4 sentences), practical and encouraging. Reference the user's actual data when relevant. Use 1-2 relevant emojis. ${ps} ${vs}`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:sys,messages:chatHistory.slice(-10)})
+    });
+    const data=await res.json();
+    removeTyping(tid);
+    const reply=data.content?.[0]?.text||'Hmm, let me think… Try again? 💫';
+    addAriaMsg(reply);chatHistory.push({role:'assistant',content:reply});
+  }catch{
+    removeTyping(tid);
+    const fb=fallbackReply(text,v,lastResult);
+    addAriaMsg(fb);chatHistory.push({role:'assistant',content:fb});
+  }
+}
+
+function fallbackReply(t,v,p){
+  t=t.toLowerCase();
+  if(/sleep|tired|rest/.test(t))return`With ${v.sleep}h of sleep, ${v.sleep<6?'you\'re running on fumes! Aim for 7-9h for peak performance 😴':'you\'re in decent shape! Consistency is what matters most ✨'}`;
+  if(/burnout|stress/.test(t))return p?`Your burnout risk is ${p.burnout}%. ${p.burnout>60?'Real talk: take proper breaks and cut stress sources 🌿':'You\'re managing well — keep protecting your energy 💪'}`:`Run the simulation first and I'll give you real numbers! 🧠`;
+  if(/focus|concentrate/.test(t))return p?`Focus score: ${p.focus}%. ${p.focus>75?'Solid! Keep sleep high and screen time low 🌟':'Try sleep optimization + reducing screen time — it\'s the fastest lever!'}`:`Hit Run Simulation and I'll analyse your specific focus potential ✨`;
+  if(/exercise|workout|gym/.test(t))return`You're at ${v.exercise}h/day. ${v.exercise<1?'Even a 20-min walk boosts energy by ~25% — start there! 🏃':'Great — exercise is literally your energy engine ⚡'}`;
+  if(/study|learn|productive/.test(t))return`${v.study}h study/day with ${v.sleep}h sleep. ${v.study>4&&v.sleep>6?'That\'s a solid combination 📚 Focus on deep work blocks!':'Balance is key — quality beats raw hours every time.'}`;
+  return`Run the simulation first and I'll give you a fully personalised analysis with your exact numbers! 🤖✨`;
+}
+
+let typingCount=0;
+function addTyping(){
+  const id='t'+typingCount++;
+  const msgs=document.getElementById('chatMsgs');
+  const el=document.createElement('div');el.className='msg aria';el.id=id;
+  el.innerHTML='<div class="msg-inner"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;return id;
+}
+function removeTyping(id){const e=document.getElementById(id);if(e)e.remove()}
+function addUserMsg(html){
+  const msgs=document.getElementById('chatMsgs');
+  const el=document.createElement('div');el.className='msg user';
+  el.innerHTML=`<div class="msg-inner">${html}</div>`;
+  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+}
+function addAriaMsg(html){
+  const msgs=document.getElementById('chatMsgs');
+  const el=document.createElement('div');el.className='msg aria';
+  el.innerHTML=`<div class="msg-inner">${html}</div>`;
+  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+}
+</script>
+</body>
+</html>

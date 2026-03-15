@@ -1,0 +1,93 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+}
+
+.container {
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 40px;
+}
+
+.main-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.input-panel {
+    width: 35%;
+}
+
+.dashboard {
+    width: 60%;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.card {
+    margin-bottom: 15px;
+}
+
+.card label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type=range] {
+    width: 100%;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background: #00c6ff;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #0072ff;
+}
+
+.advice-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+}
+
+.avatar {
+    font-size: 60px;
+    text-align: center;
+    margin-top: 20px;
+    animation: float 2s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.chatbot {
+    margin-top: 20px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#chatMessages {
+    height: 100px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
