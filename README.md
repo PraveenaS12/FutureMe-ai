@@ -1,10 +1,6 @@
 FutureMe AI ✨
 AI-Powered Lifestyle Forecaster - Predicts your focus, energy, productivity & burnout risk 1-5 years ahead based on daily habits using Machine Learning.
 
-[
-[
-[
-
 🎯 Features
 Interactive Dashboard - Real-time sliders for sleep/study/exercise habits
 
@@ -36,7 +32,7 @@ Future Enhancements
 🚀 Quick Start
 bash
 # 1. Clone & Install
-git clone https://github.com/YOUR_USERNAME/futureme-ai.git
+git clone https://github.com/PraveenaS12/futureme-ai.git
 cd futureme-ai
 pip install -r requirements.txt
 
@@ -54,7 +50,7 @@ Prerequisites: Python 3.8+
 Clone repo:
 
 bash
-git clone https://github.com/YOUR_USERNAME/futureme-ai.git
+git clone https://github.com/PraveenaS12/futureme-ai.git
 cd futureme-ai
 Virtual Environment:
 
@@ -126,8 +122,7 @@ Deployment	GitHub Pages
 
  Docker containerization
 
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+
 
 👤 Built by Praveena Subramanian
 AI/ML Engineering Student | Chennai
